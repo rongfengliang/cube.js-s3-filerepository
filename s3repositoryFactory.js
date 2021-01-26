@@ -6,7 +6,7 @@ const R = require('ramda');
 /**
  * mys3 file repository
  */
-class S3FileRepository {
+module.exports.S3FileRepository = class S3FileRepository {
     // init config with env
     constructor() {
         this.minioClient = new Minio.Client({
@@ -75,6 +75,7 @@ class S3FileRepository {
     }
 }
 
+// add default exports repositoryFactory
 module.exports = {
     repositoryFactory: ({ authInfo }) => new S3FileRepository(),
 };
