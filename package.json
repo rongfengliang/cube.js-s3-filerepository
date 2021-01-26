@@ -1,10 +1,17 @@
 {
   "name": "@dalongrong/cube-s3repository",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "s3repositoryFactory.js",
   "license": "MIT",
+  "public": true,
   "dependencies": {
     "minio": "^7.0.18",
     "stream-to-promise": "^3.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "p": "yarn publish --access public"
   }
 }
