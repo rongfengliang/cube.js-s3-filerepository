@@ -1,11 +1,13 @@
 {
   "name": "@dalongrong/cube-s3repository",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "s3repositoryFactory.js",
   "license": "MIT",
   "public": true,
   "dependencies": {
+    "fs-extra": "^9.1.0",
     "minio": "^7.0.18",
+    "ramda": "^0.27.1",
     "stream-to-promise": "^3.0.0"
   },
   "publishConfig": {
