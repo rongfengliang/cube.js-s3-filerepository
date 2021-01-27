@@ -8,7 +8,7 @@ const R = require('ramda');
  */
 class S3FileRepository {
     // init config with env
-    constructor() {
+    constructor(bucket) {
         this.minioClient = new Minio.Client({
             endPoint: process.env.cube_s3_endpoint,
             port: parseInt(process.env.cube_s3_port),
@@ -16,15 +16,17 @@ class S3FileRepository {
             accessKey: process.env.cube_s3_accesskey,
             secretKey: process.env.cube_s3_secretkey
         });
+        // set multi user bucket path
+        this.bucket = bucket
     }
     async dataSchemaFiles(includeDependencies=true) {
-        var localminioClient = this.minioClient
-        var bucket = process.env.cube_s3_bucket
-        var Files = await streamToPromise(localminioClient.listObjectsV2(bucket, "", true))
+        var self = this
+        var bucket = process.env.cube_s3_bucket || self.bucket
+        var Files = await streamToPromise(self.minioClient.listObjectsV2(bucket, "", true))
         var fileContents = []
         for (const file of Files) {
             try {
-                const fileBuffer = await streamToPromise(await localminioClient.getObject(bucket, file.name))
+                const fileBuffer = await streamToPromise(await self.minioClient.getObject(bucket, file.name))
                 let fileItemContent = fileBuffer.toString('utf-8');
                 fileContents.push({ fileName: file.name, content: fileItemContent })
             }
