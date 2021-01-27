@@ -21,7 +21,7 @@ class S3FileRepository {
     }
     async dataSchemaFiles(includeDependencies=true) {
         var self = this
-        var bucket = process.env.cube_s3_bucket || self.bucket
+        var bucket =  self.bucket || process.env.cube_s3_bucket 
         var Files = await streamToPromise(self.minioClient.listObjectsV2(bucket, "", true))
         var fileContents = []
         for (const file of Files) {
