@@ -10,6 +10,10 @@
     "ramda": "^0.27.1",
     "stream-to-promise": "^3.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rongfengliang/cube.js-s3-filerepository.git"
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
