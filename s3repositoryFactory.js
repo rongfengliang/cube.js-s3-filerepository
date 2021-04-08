@@ -8,21 +8,31 @@ const R = require('ramda');
  */
 class S3FileRepository {
     // init config with env
-    constructor(bucket) {
+    constructor(config) {
+        const { ...restConfig } = config || {};
+        this.config = {
+            endPoint: process.env.CUBEJS_S3_ENDPOINT,
+            port: process.env.CUBEJS_S3_PORT,
+            useSSL: process.env.CUBEJS_S3_SSL == "true" ? true : false,
+            accessKey: process.env.CUBEJS_S3_ACCESSKEY,
+            secretKey: process.env.CUBEJS_s3_SECRETKEY,
+            bucket:process.env.CUBEJS_S3_BUCKET,
+            objectPrefix:"", // s3 object search  prefix default set ""
+            ...restConfig,
+        };
         this.minioClient = new Minio.Client({
-            endPoint: process.env.cube_s3_endpoint,
-            port: parseInt(process.env.cube_s3_port),
-            useSSL: process.env.cube_s3_ssl == "true" ? true : false,
-            accessKey: process.env.cube_s3_accesskey,
-            secretKey: process.env.cube_s3_secretkey
+            endPoint: this.config.endPoint,
+            port: this.config.port,
+            useSSL: this.config.useSSL,
+            accessKey: this.config.accessKey,
+            secretKey: this.config.secretKey
         });
-        // set multi user bucket path
-        this.bucket = bucket
     }
-    async dataSchemaFiles(includeDependencies=true) {
+    async dataSchemaFiles(includeDependencies = true) {
         var self = this
-        var bucket =  self.bucket || process.env.cube_s3_bucket 
-        var Files = await streamToPromise(self.minioClient.listObjectsV2(bucket, "", true))
+        var bucket = self.config.bucket
+        var objectPrefix = self.config.objectPrefix
+        var Files = await streamToPromise(self.minioClient.listObjectsV2(bucket, objectPrefix, true))
         var fileContents = []
         for (const file of Files) {
             try {
@@ -39,6 +49,7 @@ class S3FileRepository {
         }
         return fileContents;
     }
+    // for search with file
     async readModules() {
         const packageJson = JSON.parse(await fs.readFile('package.json', 'utf-8'));
         const files = await Promise.all(
@@ -79,6 +90,6 @@ class S3FileRepository {
 
 // add default exports repositoryFactory
 module.exports = {
-    repositoryFactory: ({ authInfo }) => new S3FileRepository(),
+    repositoryFactory: ({ securityContext }) => new S3FileRepository(),
     S3FileRepository: S3FileRepository
 };

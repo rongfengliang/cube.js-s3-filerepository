@@ -7,12 +7,12 @@
 * add .env file
 
 ```code
-cube_s3_endpoint=localhost
-cube_s3_port=9000
-cube_s3_accesskey=minio
-cube_s3_ssl=false
-cube_s3_secretkey=minio123
-cube_s3_bucket=demo
+CUBEJS_S3_ENDPOINT=localhost
+CUBEJS_S3_PORT=9000
+CUBEJS_S3_SSL=minio
+CUBEJS_S3_ACCESSKEY=minio123
+CUBEJS_s3_SECRETKEY=demoapp
+CUBEJS_S3_BUCKET=demo
 ```
 
 * cube.js file
@@ -26,3 +26,7 @@ module.exports = {
     ...
 };
 ```
+
+## Some Notes
+
+* 2.x is not same as 1.x version
