@@ -12,7 +12,7 @@ class S3FileRepository {
         const { ...restConfig } = config || {};
         this.config = {
             endPoint: process.env.CUBEJS_S3_ENDPOINT,
-            port: process.env.CUBEJS_S3_PORT,
+            port: parseInt(process.env.CUBEJS_S3_PORT),
             useSSL: process.env.CUBEJS_S3_SSL == "true" ? true : false,
             accessKey: process.env.CUBEJS_S3_ACCESSKEY,
             secretKey: process.env.CUBEJS_s3_SECRETKEY,
