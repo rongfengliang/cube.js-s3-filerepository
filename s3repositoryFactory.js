@@ -2,6 +2,7 @@ const Minio = require('minio')
 const streamToPromise = require('stream-to-promise');
 const path = require('path');
 const fs = require('fs-extra');
+const JSON5 = require('json5')
 const R = require('ramda');
 /**
  * mys3 file repository
@@ -17,8 +18,9 @@ class S3FileRepository {
             accessKey: process.env.CUBEJS_S3_ACCESSKEY,
             secretKey: process.env.CUBEJS_s3_SECRETKEY,
             bucket:process.env.CUBEJS_S3_BUCKET,
+            mod: process.env.CUBEJS_S3_MOD || "pre", // current support prod and pre
             objectPrefix:"", // s3 object search  prefix default set ""
-            ...restConfig,
+            ...restConfig,  // for better bucket with config not env
         };
         this.minioClient = new Minio.Client({
             endPoint: this.config.endPoint,
@@ -32,16 +34,21 @@ class S3FileRepository {
         var self = this
         var bucket = self.config.bucket
         var objectPrefix = self.config.objectPrefix
-        var Files = await streamToPromise(self.minioClient.listObjectsV2(bucket, objectPrefix, true))
+        let metaObjectName = self.config.mod=="prod" ? "meta.json":"meta-pre.json"
+        // first fetch meta info: prod with  meta.json pre with meta-pre.json
+        let metaObjectFileBuffer = await streamToPromise(await self.minioClient.getObject(bucket, `${objectPrefix}/${metaObjectName}`))
+        let metaObjectContent = JSON5.parse(metaObjectFileBuffer.toString('utf-8'));
         var fileContents = []
-        for (const file of Files) {
-            try {
-                const fileBuffer = await streamToPromise(await self.minioClient.getObject(bucket, file.name))
-                let fileItemContent = fileBuffer.toString('utf-8');
-                fileContents.push({ fileName: file.name, content: fileItemContent })
-            }
-            catch (e) {
-                console.log(e)
+        for (const key in metaObjectContent) {
+            if (Object.hasOwnProperty.call(metaObjectContent, key)) {
+                try {
+                    const fileBuffer = await streamToPromise(await self.minioClient.getObject(bucket, `${objectPrefix}/${key}`))
+                    let fileItemContent = fileBuffer.toString('utf-8');
+                    fileContents.push({ fileName: key, content: fileItemContent })
+                }
+                catch (e) {
+                    console.log(e)
+                }
             }
         }
         if (includeDependencies) {
@@ -51,7 +58,7 @@ class S3FileRepository {
     }
     // for search with file
     async readModules() {
-        const packageJson = JSON.parse(await fs.readFile('package.json', 'utf-8'));
+        const packageJson = JSON5.parse(await fs.readFile('package.json', 'utf-8'));
         const files = await Promise.all(
             Object.keys(packageJson.dependencies).map(async module => {
                 if (R.endsWith('-schema', module)) {

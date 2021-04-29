@@ -1,6 +1,6 @@
 # cube.js s3 S3FileRepository
 
-> test with minio
+> test with minio && use json5 for security json parse
 
 ## Usage
 
