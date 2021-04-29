@@ -56,7 +56,7 @@ class S3FileRepository {
                 fileContents = fileContents.concat(await this.readModules());
             }
         } catch (error) {
-            console.log("fetch meta info error",err)
+            console.log("fetch meta info error",error)
         }
         return fileContents;
     }
