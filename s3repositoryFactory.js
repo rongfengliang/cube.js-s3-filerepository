@@ -1,3 +1,4 @@
+require('dotenv').config()
 const Minio = require('minio')
 const streamToPromise = require('stream-to-promise');
 const path = require('path');
