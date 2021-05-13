@@ -1,6 +1,6 @@
 {
   "name": "@dalongrong/cube-s3repository",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "main": "s3repositoryFactory.js",
   "license": "MIT",
   "public": true,

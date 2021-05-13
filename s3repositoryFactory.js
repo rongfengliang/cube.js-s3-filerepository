@@ -44,7 +44,7 @@ class S3FileRepository {
             for (const key in metaObjectContent) {
                 if (Object.hasOwnProperty.call(metaObjectContent, key)) {
                     try {
-                        const fileBuffer = await streamToPromise(await self.minioClient.getObject(bucket, `${objectPrefix}/${key}`))
+                        const fileBuffer = await streamToPromise(await self.minioClient.getObject(bucket, `${objectPrefix}/${metaObjectContent[key]}`))
                         let fileItemContent = fileBuffer.toString('utf-8');
                         fileContents.push({ fileName: key, content: fileItemContent })
                     }
