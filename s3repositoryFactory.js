@@ -53,6 +53,7 @@ class S3FileRepository {
                     }
                 }
             }
+            // if deps include we will try to find any npm pakcage naming with `<bucket>.<objectPrefix>-schema`
             if (includeDependencies) {
                 fileContents = fileContents.concat(await this.readModules());
             }
@@ -63,9 +64,17 @@ class S3FileRepository {
     }
     // for search with file
     async readModules() {
+        var self = this
         const packageJson = JSON5.parse(await fs.readFile('package.json', 'utf-8'));
         const files = await Promise.all(
             Object.keys(packageJson.dependencies).map(async module => {
+                // TODO: do some feat: for tenant npm schema
+                if(self.config.tenantschema) {
+                    // npm name should with `${tenant}-${projectid}`
+                    if (R.endsWith(`${self.config.bucket}-${self.config.objectPrefix}-schema`, module)){
+                        return this.readModuleFiles(path.join('node_modules', module)); 
+                    }
+                }
                 if (R.endsWith('-schema', module)) {
                     return this.readModuleFiles(path.join('node_modules', module));
                 }
