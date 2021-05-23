@@ -58,7 +58,7 @@ class S3FileRepository {
                 fileContents = fileContents.concat(await this.readModules());
             }
         } catch (error) {
-            console.log("fetch meta info error",error)
+            console.log("fetch meta info error", error)
         }
         return fileContents;
     }
@@ -69,14 +69,26 @@ class S3FileRepository {
         const files = await Promise.all(
             Object.keys(packageJson.dependencies).map(async module => {
                 // TODO: do some feat: for tenant npm schema
-                if(self.config.tenantschema) {
+
+                // tenant level
+                if (self.config.tenantschema) {
                     // npm name should with `${tenant}-${projectid}`
-                    if (R.endsWith(`${self.config.bucket}-${self.config.objectPrefix}-schema`, module)){
-                        return this.readModuleFiles(path.join('node_modules', module)); 
+                    if (R.endsWith(`${self.config.bucket}-schema`, module)) {
+                        return this.readModuleFiles(path.join('node_modules', module));
                     }
                 }
-                if (R.endsWith('-schema', module)) {
-                    return this.readModuleFiles(path.join('node_modules', module));
+                // tenant project level 
+                if (self.config.tenantsprojectchema) {
+                    // npm name should with `${tenant}-${projectid}`
+                    if (R.endsWith(`${self.config.bucket}-${self.config.objectPrefix}-schema`, module)) {
+                        return this.readModuleFiles(path.join('node_modules', module));
+                    }
+                }
+                // global level schema share
+                if (self.config.globalschema) {
+                    if (R.endsWith('-schema', module)) {
+                        return this.readModuleFiles(path.join('node_modules', module));
+                    }
                 }
                 return [];
             })
